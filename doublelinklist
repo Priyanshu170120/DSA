@@ -1,0 +1,130 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+void insertAtBeginning(struct Node** head, int data) {
+    struct Node* newNode = createNode(data);
+    newNode->next = *head;
+    if (*head != NULL) {
+        (*head)->prev = newNode;
+    }
+    *head = newNode;
+}
+
+void insertAtEnd(struct Node** head, int data) {
+    struct Node* newNode = createNode(data);
+    if (*head == NULL) {
+        *head = newNode;
+        return;
+    }
+    struct Node* temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = newNode;
+    newNode->prev = temp;
+}
+
+void deleteNode(struct Node** head, int key) {
+    struct Node* temp = *head;
+    if (temp == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    while (temp != NULL && temp->data != key) {
+        temp = temp->next;
+    }
+    if (temp == NULL) {
+        printf("Key %d not found.\n", key);
+        return;
+    }
+    if (temp == *head) {
+        *head = temp->next;
+        if (*head != NULL) {
+            (*head)->prev = NULL;
+        }
+    } else {
+        temp->prev->next = temp->next;
+    }
+    if (temp->next != NULL) {
+        temp->next->prev = temp->prev;
+    }
+    free(temp);
+}
+
+struct Node* searchNode(struct Node* head, int key) {
+    struct Node* current = head;
+    while (current != NULL) {
+        if (current->data == key) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+void printListForward(struct Node* head) {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d <-> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+
+void printListBackward(struct Node* head) {
+    struct Node* temp = head;
+    if (temp == NULL) return;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    while (temp != NULL) {
+        printf("%d <-> ", temp->data);
+        temp = temp->prev;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    struct Node* head = NULL;
+    insertAtEnd(&head, 10);
+    insertAtEnd(&head, 20);
+    insertAtBeginning(&head, 5);
+    insertAtBeginning(&head, 1);
+    
+    printf("Doubly linked list after insertions (forward):\n");
+    printListForward(head);
+    
+    printf("Doubly linked list after insertions (backward):\n");
+    printListBackward(head);
+
+    deleteNode(&head, 20);
+    printf("Doubly linked list after deleting 20 (forward):\n");
+    printListForward(head);
+    
+    printf("Doubly linked list after deleting 20 (backward):\n");
+    printListBackward(head);
+
+    int key = 10;
+    struct Node* foundNode = searchNode(head, key);
+    if (foundNode != NULL) {
+        printf("Node with value %d found.\n", key);
+    } else {
+        printf("Node with value %d not found.\n", key);
+    }
+
+    return 0;
+}
